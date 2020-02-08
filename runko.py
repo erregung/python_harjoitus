@@ -15,7 +15,7 @@ while True:
             c.execute("CREATE TABLE Paikat (id INTEGER PRIMARY KEY, osoite TEXT)")
             c.execute("CREATE TABLE Asiakkaat (id INTEGER PRIMARY KEY, nimi TEXT, osoite_id INTEGER)")
             c.execute("CREATE TABLE Paketit (id INTEGER PRIMARY KEY, seurantatunnus TEXT, asiakas_id INTEGER)")
-            c.execute("CREATE TABLE Tapahtumat (id INTEGER PRIMARY KEY, paketti_id INTEGER, paikka_id INTEGER, kuvaus TEXT)")
+            c.execute("CREATE TABLE Tapahtumat (id INTEGER PRIMARY KEY, paketti_id INTEGER, paikka_id INTEGER, paiva TEXT, aika TEXT, kuvaus TEXT)")
             print("Tietokanta luotu")
         except:
             print("Tietokanta on jo olemassa.")
@@ -29,8 +29,8 @@ while True:
         print("Asiakas lisätty")
     elif syote == "4":
         koodi = input("Anna paketin seurantakoodi:")
-        nimi = input("Anna asiakkaan nimi")
-        #SQL-kysely tähän
+        nimi = input("Anna asiakkaan nimi:")
+        c.execute("SELECT asiakas_id FROM Paketit P LEFT JOIN Asiakkaat A ON A.id = P.asiakas_id") 
         print("Paketti lisätty")
     elif syote == "5":
         koodi = input("Anna paketin seurantakoodi:")
@@ -49,8 +49,19 @@ while True:
         aika = ("Anna päivämäärä:")
         #SQL-kysely, joka printtaa tapahtumien määrän kys. ajankohta
     elif syote == "9":
+        #Vaihe 1
+        print("Lisätään 1000 paikkaa")
+        start_time = time.time()
+        for x in range (1, 1001):
+            c.execute("INSERT INTO Paikat (osoite) Values (?)",["P" + str(x)]) 
         #tehokkuustesti
-        print("Tehokkuustesti")
+        print("--- %s sekuntia ---" % (time.time() - start_time))
+        #Vaihe 2
+        print("Lisätään 1000 asiakasta")
+        start_time = time.time()
+        for x in range (1, 1001):
+            c.execute("INSERT INTO Asiakkaat (nimi) Values (?)",["A" + str(x)])
+        print("--- %s sekuntia ---" % (time.time() - start_time))
     else:
         break
 
