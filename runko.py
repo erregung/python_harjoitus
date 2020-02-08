@@ -11,6 +11,7 @@ while True:
     syote = input("Syötä komento (1-9):")
 
     if syote == "1":
+        #Luodaan taulukot
         try:
             c.execute("CREATE TABLE Paikat (id INTEGER PRIMARY KEY, osoite TEXT UNIQUE)")
             c.execute("CREATE TABLE Asiakkaat (id INTEGER PRIMARY KEY, nimi TEXT UNIQUE, osoite_id INTEGER)")
@@ -20,6 +21,7 @@ while True:
         except:
             print("Tietokanta on jo olemassa.")
     elif syote == "2":
+        #Lisätään syöte taulukkoon Paikat
         try:
             paikka = input("Anna paikan nimi:")
             c.execute("INSERT INTO Paikat (osoite) Values (?)",[paikka])
@@ -27,6 +29,7 @@ while True:
         except: 
             print("Virhe. Paikka on jo olemassa tai tietokantaa ei ole luotu.")
     elif syote == "3":
+        #Lisätään syöte taulukkoon Asiakkaat
         try:
             nimi = input("Anna asiakkaan nimi:")
             c.execute("INSERT INTO Asiakkaat (nimi) Values (?)", [nimi])
@@ -34,27 +37,34 @@ while True:
         except:
             print("Virhe. Asiakas on jo olemassa tai tietokantaa ei ole luotu.")
     elif syote == "4":
+        #Lisätään syöte taulukkoon Paketit
         koodi = input("Anna paketin seurantakoodi:")
         nimi = input("Anna asiakkaan nimi:")
         c.execute("SELECT asiakas_id FROM Paketit P LEFT JOIN Asiakkaat A ON A.id = P.asiakas_id") 
         print("Paketti lisätty")
     elif syote == "5":
+        #Lisätään syöte taulukkoon Tapahtumat
         koodi = input("Anna paketin seurantakoodi:")
         paikka = input("Anna tapahtuman paikka")
         kuvaus = input("Anna tapahtuman kuvaus")
         #SQL-kysely tähän
         print("Tapahtuma lisätty")
     elif syote == "6":
+        #Hae kaikki paketin tapahtumat seurantakoodin perusteella
         koodi = input("Anna paketin seurantakoodi:")
         #SQL-kysely tähän (tulostaa tapahtumat)
     elif syote == "7":
+        #Hae asiakkaan paketit ja niiden tapahtumamäärä
         nimi = input("Anna asiakkaan nimi")
         #SQL-kysely, tulosta "KOODI + n tapahtumaa"
     elif syote == "8":
+        #Paikan tapahtumat tiettynä päivänä
         paikka = ("Anna paikan nimi:")
         aika = ("Anna päivämäärä:")
         #SQL-kysely, joka printtaa tapahtumien määrän kys. ajankohta
     elif syote == "9":
+        #Testi suoritettava kahdesti: ensin ilman indeksointia, sitten sen kanssa
+        #Suoritettava vaiheet 1 - 4 yhden transaktion sisällä!
         #Vaihe 1
         print("Lisätään 1000 paikkaa")
         start_time = time.time()
