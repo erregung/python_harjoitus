@@ -12,21 +12,27 @@ while True:
 
     if syote == "1":
         try:
-            c.execute("CREATE TABLE Paikat (id INTEGER PRIMARY KEY, osoite TEXT)")
-            c.execute("CREATE TABLE Asiakkaat (id INTEGER PRIMARY KEY, nimi TEXT, osoite_id INTEGER)")
-            c.execute("CREATE TABLE Paketit (id INTEGER PRIMARY KEY, seurantatunnus TEXT, asiakas_id INTEGER)")
+            c.execute("CREATE TABLE Paikat (id INTEGER PRIMARY KEY, osoite TEXT UNIQUE)")
+            c.execute("CREATE TABLE Asiakkaat (id INTEGER PRIMARY KEY, nimi TEXT UNIQUE, osoite_id INTEGER)")
+            c.execute("CREATE TABLE Paketit (id INTEGER PRIMARY KEY, koodi TEXT UNIQUE, asiakas_id INTEGER)")
             c.execute("CREATE TABLE Tapahtumat (id INTEGER PRIMARY KEY, paketti_id INTEGER, paikka_id INTEGER, paiva TEXT, aika TEXT, kuvaus TEXT)")
             print("Tietokanta luotu")
         except:
             print("Tietokanta on jo olemassa.")
     elif syote == "2":
-        paikka = input("Anna paikan nimi:")
-        c.execute("INSERT INTO Paikat (osoite) Values (?)",[paikka])
-        print("Paikka lisätty")
+        try:
+            paikka = input("Anna paikan nimi:")
+            c.execute("INSERT INTO Paikat (osoite) Values (?)",[paikka])
+            print("Paikka lisätty")
+        except: 
+            print("Virhe. Paikka on jo olemassa tai tietokantaa ei ole luotu.")
     elif syote == "3":
-        nimi = input("Anna asiakkaan nimi:")
-        c.execute("INSERT INTO Asiakkaat (nimi) Values (?)", [nimi])
-        print("Asiakas lisätty")
+        try:
+            nimi = input("Anna asiakkaan nimi:")
+            c.execute("INSERT INTO Asiakkaat (nimi) Values (?)", [nimi])
+            print("Asiakas lisätty")
+        except:
+            print("Virhe. Asiakas on jo olemassa tai tietokantaa ei ole luotu.")
     elif syote == "4":
         koodi = input("Anna paketin seurantakoodi:")
         nimi = input("Anna asiakkaan nimi:")
