@@ -6,7 +6,7 @@ db.isolation_level = None
 
 c = db.cursor()
 
-print("1. Luo sovelluksen tarvitsemat taulut tyhjään tietokantaan (tätä toimintoa voidaan käyttää, kun tietokantaa ei ole vielä olemassa).\n2. Lisää uusi paikka tietokantaan, kun annetaan paikan nimi.\n3. Lisää uusi asiakas tietokantaan, kun annetaan asiakkaan nimi.\n4.  Lisää uusi paketti tietokantaan, kun annetaan paketin seurantakoodi ja asiakkaan nimi. Asiakkaan tulee olla valmiiksi tietokannassa.\n. Lisää uusi tapahtuma tietokantaan, kun annetaan paketin seurantakoodi, tapahtuman paikka sekä kuvaus. Paketin ja paikan tulee olla valmiiksi tietokannassa.\n6. Hae kaikki paketin tapahtumat seurantakoodin perusteella.\n7. Hae kaikki asiakkaan paketit ja niihin liittyvien tapahtumien määrä.\n8. Hae annetusta paikasta tapahtumien määrä tiettynä päivänä.\n9. Suorita tietokannan tehokkuustesti (tästä lisää alempana).")
+print("1. Luo sovelluksen tarvitsemat taulut tyhjään tietokantaan (tätä toimintoa voidaan käyttää, kun tietokantaa ei ole vielä olemassa).\n2. Lisää uusi paikka tietokantaan, kun annetaan paikan nimi.\n3. Lisää uusi asiakas tietokantaan, kun annetaan asiakkaan nimi.\n4.  Lisää uusi paketti tietokantaan, kun annetaan paketin seurantakoodi ja asiakkaan nimi. Asiakkaan tulee olla valmiiksi tietokannassa.\n5. Lisää uusi tapahtuma tietokantaan, kun annetaan paketin seurantakoodi, tapahtuman paikka sekä kuvaus. Paketin ja paikan tulee olla valmiiksi tietokannassa.\n6. Hae kaikki paketin tapahtumat seurantakoodin perusteella.\n7. Hae kaikki asiakkaan paketit ja niihin liittyvien tapahtumien määrä.\n8. Hae annetusta paikasta tapahtumien määrä tiettynä päivänä.\n9. Suorita tietokannan tehokkuustesti (tästä lisää alempana).")
 while True:
     syote = input("Syötä komento (1-9):")
 
@@ -37,11 +37,14 @@ while True:
         except:
             print("Virhe. Asiakas on jo olemassa tai tietokantaa ei ole luotu.")
     elif syote == "4":
-        #Lisätään syöte taulukkoon Paketit
-        koodi = input("Anna paketin seurantakoodi:")
-        nimi = input("Anna asiakkaan nimi:")
-        c.execute("SELECT asiakas_id FROM Paketit P LEFT JOIN Asiakkaat A ON A.id = P.asiakas_id") 
-        print("Paketti lisätty")
+        #try:
+            #Lisätään syöte taulukkoon Paketit
+            koodi = input("Anna paketin seurantakoodi:")
+            nimi = input("Anna asiakkaan nimi:")
+            c.execute("INSERT INTO Paketit (koodi, asiakas_id) VALUES ('%s', (SELECT B.asiakas_id FROM Paketit B LEFT JOIN Asiakkaat A ON A.id = B.asiakas_id WHERE A.nimi = '%s'));" % (koodi, nimi)) 
+            print("Paketti lisätty")
+       #except:
+            print("Virhe. Koodi on jo lisätty tai asiakasta ei ole.")
     elif syote == "5":
         #Lisätään syöte taulukkoon Tapahtumat
         koodi = input("Anna paketin seurantakoodi:")
