@@ -9,14 +9,14 @@ c = db.cursor()
 print("1. Luo sovelluksen tarvitsemat taulut tyhjään tietokantaan (tätä toimintoa voidaan käyttää, kun tietokantaa ei ole vielä olemassa).\n2. Lisää uusi paikka tietokantaan, kun annetaan paikan nimi.\n3. Lisää uusi asiakas tietokantaan, kun annetaan asiakkaan nimi.\n4.  Lisää uusi paketti tietokantaan, kun annetaan paketin seurantakoodi ja asiakkaan nimi. Asiakkaan tulee olla valmiiksi tietokannassa.\n5. Lisää uusi tapahtuma tietokantaan, kun annetaan paketin seurantakoodi, tapahtuman paikka sekä kuvaus. Paketin ja paikan tulee olla valmiiksi tietokannassa.\n6. Hae kaikki paketin tapahtumat seurantakoodin perusteella.\n7. Hae kaikki asiakkaan paketit ja niihin liittyvien tapahtumien määrä.\n8. Hae annetusta paikasta tapahtumien määrä tiettynä päivänä.\n9. Suorita tietokannan tehokkuustesti (tästä lisää alempana).")
 while True:
     syote = input("Syötä komento (1-9):")
-
+    c.execute("PRAGMA foreign_keys = ON")
     if syote == "1":
         #Luodaan taulukot
         try:
             c.execute("CREATE TABLE Paikat (id INTEGER PRIMARY KEY, osoite TEXT UNIQUE)")
-            c.execute("CREATE TABLE Asiakkaat (id INTEGER PRIMARY KEY, nimi TEXT UNIQUE, osoite_id INTEGER)")
-            c.execute("CREATE TABLE Paketit (id INTEGER PRIMARY KEY, koodi TEXT UNIQUE, asiakas_id INTEGER)")
-            c.execute("CREATE TABLE Tapahtumat (id INTEGER PRIMARY KEY, paketti_id INTEGER, paikka_id INTEGER, paiva TEXT, aika TEXT, kuvaus TEXT)")
+            c.execute("CREATE TABLE Asiakkaat (id INTEGER PRIMARY KEY, nimi TEXT UNIQUE, osoite_id INTEGER REFERENCES Paikat)")
+            c.execute("CREATE TABLE Paketit (id INTEGER PRIMARY KEY, koodi TEXT UNIQUE, asiakas_id INTEGER REFERENCES Asiakkaat)")
+            c.execute("CREATE TABLE Tapahtumat (id INTEGER PRIMARY KEY, paketti_id INTEGER REFERENCES Paketit, paikka_id INTEGER REFERENCES Paikat, paiva TEXT, aika TEXT, kuvaus TEXT)")
             print("Tietokanta luotu")
         except:
             print("Tietokanta on jo olemassa.")
@@ -37,13 +37,14 @@ while True:
         except:
             print("Virhe. Asiakas on jo olemassa tai tietokantaa ei ole luotu.")
     elif syote == "4":
-        #try:
+        try:
+            #INSERT INTO Paketit (koodi, asiakas_id) VALUES('X06', (SELECT id FROM Asiakkaat WHERE Asiakkaat.nimi = 'A'));
             #Lisätään syöte taulukkoon Paketit
             koodi = input("Anna paketin seurantakoodi:")
             nimi = input("Anna asiakkaan nimi:")
-            c.execute("INSERT INTO Paketit (koodi, asiakas_id) VALUES ('%s', (SELECT B.asiakas_id FROM Paketit B LEFT JOIN Asiakkaat A ON A.id = B.asiakas_id WHERE A.nimi = '%s'));" % (koodi, nimi)) 
+            c.execute("INSERT INTO Paketit (koodi, asiakas_id) VALUES('%s', (SELECT id FROM Asiakkaat WHERE Asiakkaat.nimi = '%s'));" % (koodi, nimi))
             print("Paketti lisätty")
-       #except:
+        except:
             print("Virhe. Koodi on jo lisätty tai asiakasta ei ole.")
     elif syote == "5":
         #Lisätään syöte taulukkoon Tapahtumat
