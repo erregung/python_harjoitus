@@ -49,14 +49,14 @@ while True:
     elif syote == "5":
         #Lisätään syöte taulukkoon Tapahtumat
         koodi = input("Anna paketin seurantakoodi:")
-        paikka = input("Anna tapahtuman paikka")
-        kuvaus = input("Anna tapahtuman kuvaus")
-        #SQL-kysely tähän
+        paikka = input("Anna tapahtuman paikka:")
+        kuvaus = input("Anna tapahtuman kuvaus:")
+        c.execute("INSERT INTO Tapahtumat (paketti_id, paikka_id, kuvaus, paiva, aika) VALUES((SELECT id FROM Paketit WHERE Paketit.koodi = '%s'), (SELECT id FROM Paikat WHERE Paikat.osoite = '%s'), '%s', CURRENT_DATE, CURRENT_TIME);" % (koodi, paikka, kuvaus)) 
         print("Tapahtuma lisätty")
     elif syote == "6":
         #Hae kaikki paketin tapahtumat seurantakoodin perusteella
         koodi = input("Anna paketin seurantakoodi:")
-        #SQL-kysely tähän (tulostaa tapahtumat)
+        c.execute("SELECT")
     elif syote == "7":
         #Hae asiakkaan paketit ja niiden tapahtumamäärä
         nimi = input("Anna asiakkaan nimi")
