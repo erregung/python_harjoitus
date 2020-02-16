@@ -38,7 +38,6 @@ while True:
             print("Virhe. Asiakas on jo olemassa tai tietokantaa ei ole luotu.")
     elif syote == "4":
         try:
-            #INSERT INTO Paketit (koodi, asiakas_id) VALUES('X06', (SELECT id FROM Asiakkaat WHERE Asiakkaat.nimi = 'A'));
             #Lisätään syöte taulukkoon Paketit
             koodi = input("Anna paketin seurantakoodi:")
             nimi = input("Anna asiakkaan nimi:")
@@ -54,12 +53,16 @@ while True:
         c.execute("INSERT INTO Tapahtumat (paketti_id, paikka_id, kuvaus, paiva, aika) VALUES((SELECT id FROM Paketit WHERE Paketit.koodi = '%s'), (SELECT id FROM Paikat WHERE Paikat.osoite = '%s'), '%s', CURRENT_DATE, CURRENT_TIME);" % (koodi, paikka, kuvaus)) 
         print("Tapahtuma lisätty")
     elif syote == "6":
-        #Hae kaikki paketin tapahtumat seurantakoodin perusteella
-        koodi = input("Anna paketin seurantakoodi:")
-        c.execute("SELECT")
+        try: 
+            #Hae kaikki paketin tapahtumat seurantakoodin perusteella
+            koodi = input("Anna paketin seurantakoodi: ")
+            c.execute("SELECT T.paiva, T.aika, P.osoite, T.kuvaus FROM Tapahtumat T LEFT JOIN Paketit B ON B.id = T.paketti_id LEFT JOIN Paikat P ON T.paikka_id = P.id WHERE B.koodi = '?'", [koodi])
+        except: 
+            print("Koodia ei löydetty tai tapahtumia ei ole.")
     elif syote == "7":
         #Hae asiakkaan paketit ja niiden tapahtumamäärä
-        nimi = input("Anna asiakkaan nimi")
+        nimi = input("Anna asiakkaan nimi: ")
+        c.execute("SELECT B.koodi, COUNT(T.id) FROM Paketit B, Tapahtumat T LEFT JOIN Asiakkaat A ON A.id = B.asiakas_id WHERE A.nimi=?", [nimi])
         #SQL-kysely, tulosta "KOODI + n tapahtumaa"
     elif syote == "8":
         #Paikan tapahtumat tiettynä päivänä
