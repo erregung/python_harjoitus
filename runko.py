@@ -8,8 +8,9 @@ c = db.cursor()
 
 print("1. Luo sovelluksen tarvitsemat taulut tyhjään tietokantaan (tätä toimintoa voidaan käyttää, kun tietokantaa ei ole vielä olemassa).\n2. Lisää uusi paikka tietokantaan, kun annetaan paikan nimi.\n3. Lisää uusi asiakas tietokantaan, kun annetaan asiakkaan nimi.\n4. Lisää uusi paketti tietokantaan, kun annetaan paketin seurantakoodi ja asiakkaan nimi. Asiakkaan tulee olla valmiiksi tietokannassa.\n5. Lisää uusi tapahtuma tietokantaan, kun annetaan paketin seurantakoodi, tapahtuman paikka sekä kuvaus. Paketin ja paikan tulee olla valmiiksi tietokannassa.\n6. Hae kaikki paketin tapahtumat seurantakoodin perusteella.\n7. Hae kaikki asiakkaan paketit ja niihin liittyvien tapahtumien määrä.\n8. Hae annetusta paikasta tapahtumien määrä tiettynä päivänä.\n9. Suorita tietokannan tehokkuustesti.")
 while True:
-    syote = input("Syötä komento (1-9):")
+    syote = input("Syötä komento (1-9): ")
     c.execute("PRAGMA foreign_keys = ON")
+
     if syote == "1":
         #Luodaan taulukot
         try:
@@ -17,9 +18,14 @@ while True:
             c.execute("CREATE TABLE Asiakkaat (id INTEGER PRIMARY KEY, nimi TEXT UNIQUE, osoite_id INTEGER REFERENCES Paikat)")
             c.execute("CREATE TABLE Paketit (id INTEGER PRIMARY KEY, koodi TEXT UNIQUE, asiakas_id INTEGER REFERENCES Asiakkaat)")
             c.execute("CREATE TABLE Tapahtumat (id INTEGER PRIMARY KEY, paketti_id INTEGER REFERENCES Paketit, paikka_id INTEGER REFERENCES Paikat, paiva TEXT, aika TEXT, kuvaus TEXT)")
+            c.execute("CREATE INDEX idx_nimi ON Asiakkaat (nimi)")
+            c.execute("CREATE INDEX idx_koodi ON Paketit (koodi)")
+            c.execute("CREATE INDEX idx_asiakas_id ON Paketit (asiakas_id)")  
+            c.execute("CREATE INDEX idx_paketti_id ON Tapahtumat (paketti_id)")         
             print("Tietokanta luotu")
         except:
             print("Tietokanta on jo olemassa.")
+
     elif syote == "2":
         #Lisätään syöte taulukkoon Paikat
         try:
@@ -28,6 +34,7 @@ while True:
             print("Paikka lisätty")
         except: 
             print("Virhe. Paikka on jo olemassa tai tietokantaa ei ole luotu.")
+
     elif syote == "3":
         #Lisätään syöte taulukkoon Asiakkaat
         try:
@@ -36,6 +43,7 @@ while True:
             print("Asiakas lisätty")
         except:
             print("Virhe. Asiakas on jo olemassa tai tietokantaa ei ole luotu.")
+
     elif syote == "4":
         try:
             #Lisätään syöte taulukkoon Paketit
@@ -45,6 +53,7 @@ while True:
             print("Paketti lisätty")
         except:
             print("Virhe. Koodi on jo lisätty tai asiakasta ei ole.")
+
     elif syote == "5":
         #Lisätään syöte taulukkoon Tapahtumat
         koodi = input("Anna paketin seurantakoodi: ")
@@ -52,6 +61,7 @@ while True:
         kuvaus = input("Anna tapahtuman kuvaus: ")
         c.execute("INSERT INTO Tapahtumat (paketti_id, paikka_id, kuvaus, paiva, aika) VALUES((SELECT id FROM Paketit WHERE Paketit.koodi = '%s'), (SELECT id FROM Paikat WHERE Paikat.osoite = '%s'), '%s', CURRENT_DATE, CURRENT_TIME);" % (koodi, paikka, kuvaus)) 
         print("Tapahtuma lisätty")
+
     elif syote == "6":
         try: 
             #Hae kaikki paketin tapahtumat seurantakoodin perusteella
@@ -60,11 +70,13 @@ while True:
             print(c.fetchall())        
         except: 
             print("Koodia ei löydetty tai tapahtumia ei ole.")
+
     elif syote == "7":
         #Hae asiakkaan paketit ja niiden tapahtumamäärä
         nimi = input("Anna asiakkaan nimi: ")
-        c.execute("SELECT B.koodi, COUNT(T.id) FROM Paketit B, Tapahtumat T LEFT JOIN Asiakkaat A ON A.id = B.asiakas_id WHERE A.nimi='%s'" % (nimi))
+        c.execute("SELECT B.koodi, COUNT(T.paketti_id) FROM Paketit B LEFT JOIN Tapahtumat T ON T.paketti_id = B.id LEFT JOIN Asiakkaat A ON A.id = B.asiakas_id GROUP BY B.koodi HAVING A.nimi=?", (nimi,))
         print(c.fetchall())
+
     elif syote == "8":
         #Paikan tapahtumat tiettynä päivänä
         paikka = input("Anna paikan nimi: ")
@@ -72,6 +84,7 @@ while True:
         c.execute("SELECT COUNT(T.id) FROM Tapahtumat T LEFT JOIN Paikat P ON P.id = T.paikka_id WHERE P.osoite = '%s' AND T.paiva = '%s'" % (paikka, aika))
         maara = c.fetchall()
         print("Tapahtumien määrä:", maara[0][0])
+
     elif syote == "9":
         #Testi suoritettava kahdesti: ensin ilman indeksointia, sitten sen kanssa
         #Suoritettava vaiheet 1 - 4 yhden transaktion sisällä!
@@ -113,7 +126,6 @@ while True:
         for x in range (1, 1001):
             nimi = "A" + str(x)
             c.execute("SELECT COUNT(B.id) FROM Paketit B LEFT JOIN Asiakkaat A ON A.id = B.asiakas_id WHERE A.nimi = ?", (nimi, ))
-            print(c.fetchall())
         print("--- %s sekuntia ---" % (time.time() - start_time))
         #Tuhat kyselyä, joissa haetaan jonkin paketin tapahtumamäärä
         print("Haetaan tuhat kertaa jonkin paketin tapahtumamäärä")
