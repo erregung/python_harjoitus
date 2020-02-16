@@ -71,7 +71,7 @@ while True:
         aika = input("Anna päivämäärä: ")
         c.execute("SELECT COUNT(T.id) FROM Tapahtumat T LEFT JOIN Paikat P ON P.id = T.paikka_id WHERE P.osoite = '%s' AND T.paiva = '%s'" % (paikka, aika))
         maara = c.fetchall()
-        print("Tapahtumien määrä:", maara[0])
+        print("Tapahtumien määrä:", maara[0][0])
     elif syote == "9":
         #Testi suoritettava kahdesti: ensin ilman indeksointia, sitten sen kanssa
         #Suoritettava vaiheet 1 - 4 yhden transaktion sisällä!
